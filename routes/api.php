@@ -11,10 +11,12 @@ Route::group(['middleware' => ['cors', 'has.permission:admin_users', 'jwt.auth']
   Route::get('permisos_por_rol/{id_rol}', 'UserController@permisos_por_rol');
   Route::get('usuarios', 'UserController@index');
 });
-/***************************** Ver proyectos *********************************/
+/*****************************proyectos *********************************/
 Route::group(['middleware' => ['cors', 'jwt.auth']], function () {
+  Route::put('proyecto', 'ProjectController@nuevoProyecto');
   Route::get('proyectos', 'ProjectController@index');
   Route::get('proyecto/{id}', 'ProjectController@getProject');
+
   /***************************** Ver conceptos ********************************/
   Route::get('conceptos/{id_proyecto}', 'ProjectController@conceptosProyecto');
   Route::put('nuevoconcepto', 'ProjectController@nuevoConcepto');

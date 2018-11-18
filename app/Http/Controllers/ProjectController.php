@@ -22,6 +22,13 @@ class ProjectController extends Controller{
         return response()->json(["proyecto" => $project], 200);
       }
     }
+    public function nuevoProyecto(Request $request){
+        if(Project::create($request->all())){
+            return response()->json(['message'=>'Proyecto creado correctamente'], 200);
+        }else{
+            return response()->json(['message'=>'Hubo un error al crear el proyecto'], 500);
+        }
+    }
     public function conceptosProyecto(Request $request){
         $id_proyecto = $request->id_proyecto;
         $conceptos['concepts'] = DB::table('concepts')

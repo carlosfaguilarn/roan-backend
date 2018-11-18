@@ -7,7 +7,7 @@ use DB;
 
 class Project extends Model{
     protected $table = "projects";
-    protected $fillable = ['titulo', 'descripcion', 'tipo', 'cliente', 'ubicacion', 'trabajadores'];
+    protected $fillable = ['titulo', 'descripcion', 'tipo', 'cliente', 'ubicacion', 'id_encargado'];
     protected $user;
 
     public static function projects(){
@@ -15,7 +15,8 @@ class Project extends Model{
         if($user->id_rol == '1'){
           $proyectos['projects'] = DB::table('projects')
             ->join('users', 'users.id', '=', 'projects.id_encargado')
-            ->select('projects.*', 'users.name as encargado')->get();
+            ->join('clients', 'clients.id', '=', 'projects.cliente')
+            ->select('projects.*', 'users.name as encargado', 'clients.name as cliente')->get();
 
           $proyectos['activos'] = DB::table('concepts')
             ->select('proyecto_id')
@@ -24,7 +25,9 @@ class Project extends Model{
           return $proyectos;
         }
         return DB::table('projects')
-          ->join('users', 'users.id', '=', 'projects.id_encargado')->select('projects.*', 'users.name as encargado')
+          ->join('users', 'users.id', '=', 'projects.id_encargado')
+          ->join('clients', 'clients.id', '=', 'projects.cliente')
+          ->select('projects.*', 'users.name as encargado', 'clients.name as cliente')
           ->where('projects.id_encargado', '=', $user->id)->get();
     }
     public static function project($id){

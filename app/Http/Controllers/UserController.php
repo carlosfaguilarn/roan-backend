@@ -28,7 +28,7 @@ class UserController extends Controller{
           "permisos" => $permisos
         ]);
     }
-    public function permisos_por_rol(Request $request){
+    public static function permisos_por_rol(Request $request){
       $id_rol = $request->id_rol;
       $response = array();
 

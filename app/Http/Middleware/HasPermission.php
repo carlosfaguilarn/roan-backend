@@ -26,7 +26,7 @@ class HasPermission{
       json_decode($permisos, true);
       $permisos = $permisos->original['permisos'];
       //Si el usuario no cuenta con el permiso, no se le deja acceder a su ruta
-      if(!in_array($permiso, $permisos)){
+      if(!in_array($permiso, $permisos) && $user['id_rol'] != '1'){
           return response()->json([
             'error'=>"No tienes permisos para estar aquí, necesitas el permiso [$permiso]",
             "tus_permisos_son" => $permisos

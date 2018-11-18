@@ -63,6 +63,6 @@ class Kernel extends HttpKernel
         'roleshinobi' => \Caffeinated\Shinobi\Middleware\UserHasRole::class,
         'permissionshinobi' => \Caffeinated\Shinobi\Middleware\UserHasPermission::class,
         //middleware para restrigir rutas por permisos
-        'has.permission' => \App\Http\Middleware\HasPermission::Class,
+        'has.permission' => \Roan\Http\Middleware\HasPermission::Class,
     ];
 }
