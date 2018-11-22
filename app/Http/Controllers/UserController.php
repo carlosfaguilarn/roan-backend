@@ -2,12 +2,14 @@
 namespace Roan\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Roan\Mail\Contacto;
 
 use Roan\User;
 use Illuminate\Support\Facades\Validator;
 use Caffeinated\Shinobi\Models\Role;
 use Caffeinated\Shinobi\Models\Permission;
 use DB;
+use Mail;
 
 class UserController extends Controller{
     public function index(){
@@ -109,5 +111,27 @@ class UserController extends Controller{
         }else{
             return response()->json(["message" => "Hubo un error al asignar el permiso"], 500);
         }
+    }
+
+    public function enviarEmailContacto(Request $request){
+        Mail::send('contacto', $request->all(), function($msj){
+          $msj->subject('Correo de contacto');
+          $msj->to('roan.proyectos@gmail.com');
+        });
+        return response()->json(["message"=> "Mensaje enviado correctamente"], 200);
+        /*$emailRoan = 'proyectos.roan@gmail.com';
+        $mensaje = $request->input('mensaje');
+        // título
+        $titulo = 'Cliente';
+        // Mensaje
+        $cabeceras  = 'MIME-Version: 1.0' . "\r\n";
+        $cabeceras .= 'From: Jobber <carlosf.aguilarn@gmail.com>' . "\r\n";
+
+        //if(Mail::to($emailRoan)->send(new Contacto($request->input('mensaje')))){
+        if(mail($emailRoan, $titulo, $mensaje, $cabeceras)){
+            response()->json(["message"=> "Mensaje enviado correctamente"], 200);
+        } else {
+            response()->json(["error"=> "Ocurrió un error al enviar el mensaje"], 500);
+        }*/
     }
 }

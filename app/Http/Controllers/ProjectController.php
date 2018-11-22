@@ -73,9 +73,12 @@ class ProjectController extends Controller{
       $concepto->fin = $request->input('fin');
       $concepto->evidencia = $request->input('evidencia');
       if($concepto->save()){
-          return response()->json(["message"=>"Tarea editada correctamente"], 200);
+          return response()->json([
+            "message" => "Tarea editada correctamente",
+            "concept" => Concept::find($request->input('id'))
+          ],200);
       }else{
-          return response()->json(["message"=>"Hubo un error al editar la tarea"], 500);
+          return response()->json(["error"=>"Hubo un error al editar la tarea"], 500);
       }
     }
 }
