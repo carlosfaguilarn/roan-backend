@@ -3,6 +3,7 @@
 namespace Roan;
 
 use Illuminate\Database\Eloquent\Model;
+use Caffeinated\Shinobi\Models\Role;
 use DB;
 
 class Project extends Model{
@@ -12,23 +13,25 @@ class Project extends Model{
 
     public static function projects(){
         $user = \JWTAuth::parseToken()->authenticate();
-        if($user->id_rol == '1'){
+        $user->role = Role::where('id', $user->id_rol)->first()['slug'];
+
+        if($user->role == 'administrador'){
           $proyectos['projects'] = DB::table('projects')
             ->join('users', 'users.id', '=', 'projects.id_encargado')
             ->join('clients', 'clients.id', '=', 'projects.cliente')
             ->select('projects.*', 'users.name as encargado', 'clients.name as cliente')->get();
-
-          $proyectos['activos'] = DB::table('concepts')
-            ->select('proyecto_id')
-            ->where('costo', '=', '')
-            ->groupBy('proyecto_id')->get();
-          return $proyectos;
+        }else{
+          $proyectos['projects'] = DB::table('projects')
+            ->join('users', 'users.id', '=', 'projects.id_encargado')
+            ->join('clients', 'clients.id', '=', 'projects.cliente')
+            ->select('projects.*', 'users.name as encargado', 'clients.name as cliente')
+            ->where('projects.id_encargado', '=', $user->id)->get();
         }
-        return DB::table('projects')
-          ->join('users', 'users.id', '=', 'projects.id_encargado')
-          ->join('clients', 'clients.id', '=', 'projects.cliente')
-          ->select('projects.*', 'users.name as encargado', 'clients.name as cliente')
-          ->where('projects.id_encargado', '=', $user->id)->get();
+        $proyectos['activos'] = DB::table('concepts')
+          ->select('proyecto_id')->where('costo', '=', '')
+          ->groupBy('proyecto_id')->get();
+
+        return $proyectos;
     }
     public static function project($id){
         $user = \JWTAuth::parseToken()->authenticate();
@@ -38,7 +41,7 @@ class Project extends Model{
           ->where('projects.id', '=', $id)
           ->get()[0];
 
-        if($user->id_rol == '1'){
+        if($user->role == 'administrador'){
             return $proyecto;
         }else if($proyecto->id_encargado == $user->id){
             return $proyecto;

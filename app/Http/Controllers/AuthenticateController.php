@@ -6,13 +6,14 @@ use Illuminate\Http\Request;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use DB;
 
 class AuthenticateController extends Controller{
     public function authenticate(Request $request){
         $credentials = $request->only('email', 'password');
         try{
-            if(!$token = JWTAuth::attempt($credentials)){
+            if(!$token = JWTAuth::attempt($credentials, ['exp' => Carbon::now()->addDays(7)->timestamp])){
                 return response()->json(['error'=>'invalid_credentials'], 401);
             }
         }catch(JWTException $e){
@@ -23,9 +24,9 @@ class AuthenticateController extends Controller{
 
         $response['user'] = DB::table('users')
           ->join('roles', 'roles.id', '=', 'users.id_rol')
-          ->select('users.*', 'roles.name as role')
+          ->select('users.*', 'roles.slug as role')
           ->where('users.id', Auth::user()->id)
-          ->get();
+          ->get()->first();
 
         return $response;
     }

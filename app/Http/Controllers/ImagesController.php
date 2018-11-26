@@ -44,6 +44,14 @@ class ImagesController extends Controller{
        DB::table('ads')->where('id', $request->input('id'))->update(['img' => $nombre]);
        return response()->json(["img" => $nombre], 200);
     }
+    public function saveProfilePicture(Request $request){
+       $file = $request->file('img');
+       $nombre = str_replace(" ", "-", date('Y-m-d H_i_s'))."-".$file->getClientOriginalName();
+       $nombre = str_replace(" ", "_", $nombre);
+       \Storage::disk('local')->put($nombre,  \File::get($file));
+       DB::table('users')->where('id', $request->input('id'))->update(['img' => $nombre]);
+       return response()->json(["img" => $nombre], 200);
+    }
     public function savePDF(Request $request){
        //obtenemos el campo file definido en el formulario
        $file = $request->file('pdf');

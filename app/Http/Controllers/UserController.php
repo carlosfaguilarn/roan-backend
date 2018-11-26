@@ -8,6 +8,7 @@ use Roan\User;
 use Illuminate\Support\Facades\Validator;
 use Caffeinated\Shinobi\Models\Role;
 use Caffeinated\Shinobi\Models\Permission;
+use Hash;
 use DB;
 use Mail;
 
@@ -17,6 +18,16 @@ class UserController extends Controller{
         return response()->json([
           "users" => $users
         ]);
+    }
+    public function store(Request $request){
+        $data = $request->all();
+
+        $data['password'] =  Hash::make($request->input('password'));
+        if($user = User::create($data)){
+            return response()->json(["message" => "Usuario creado correctamente", "user" => $user], 200);
+        }else{
+            return response()->json(["error" => "Hubo un error al crear un usuario"], 500);
+        }
     }
     public function roles(){
         $roles = Role::all();
@@ -32,24 +43,34 @@ class UserController extends Controller{
     }
     public static function permisos_por_rol(Request $request){
       $id_rol = $request->id_rol;
-      $response = array();
+      $response_slug = array();
+      $response_name = array();
+      $response_descripcion = array();
 
-      $slugs = DB::table('permission_role')
-        ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
-        ->select('permissions.slug as name')
-        ->where('permission_role.role_id', $id_rol)
-        ->get();
-
-      foreach ($slugs as $slug) {
-        foreach ($slug as $value) {
-          array_push($response, $value);
-        }
+      if($id_rol == '1'){
+          $slugs        = DB::table('permissions')->select('permissions.slug as slugs')->get();
+          $names        = DB::table('permissions')->select('permissions.name as names')->get();
+          $description  = DB::table('permissions')->select('permissions.description as description')->get();
+      }else{
+          $slugs = DB::table('permission_role')
+            ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
+            ->select('permissions.slug as slugs')->where('permission_role.role_id', $id_rol)->get();
+          $names = DB::table('permission_role')
+            ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
+            ->select('permissions.name as name')->where('permission_role.role_id', $id_rol)->get();
+          $description = DB::table('permission_role')
+            ->join('permissions', 'permissions.id', '=', 'permission_role.permission_id')
+            ->select('permissions.description as description')->where('permission_role.role_id', $id_rol)->get();
       }
+      foreach ($slugs as $slug)             foreach ($slug as $value) array_push($response_slug, $value);
+      foreach ($names as $name)             foreach ($name as $value) array_push($response_name, $value);
+      foreach ($description as $description) foreach ($description as $value) array_push($response_descripcion, $value);
 
       return response()->json([
-        "permisos" => $response
+        "permisos" => $response_slug,
+        "name" => $response_name,
+        "description" => $response_descripcion
       ], 200);
-
     }
     public function crear_rol(Request $request){
         $rol = new Role;
@@ -114,12 +135,14 @@ class UserController extends Controller{
     }
 
     public function enviarEmailContacto(Request $request){
-        Mail::send('contacto', $request->all(), function($msj){
+        /*Mail::send('contacto', $request->all(), function($msj){
           $msj->subject('Correo de contacto');
           $msj->to('roan.proyectos@gmail.com');
         });
-        return response()->json(["message"=> "Mensaje enviado correctamente"], 200);
-        /*$emailRoan = 'proyectos.roan@gmail.com';
+        return response()->json(["message"=> "Mensaje enviado correctamente"], 200);*/
+
+
+        $emailRoan = 'proyectos.roan@gmail.com';
         $mensaje = $request->input('mensaje');
         // título
         $titulo = 'Cliente';
@@ -132,6 +155,6 @@ class UserController extends Controller{
             response()->json(["message"=> "Mensaje enviado correctamente"], 200);
         } else {
             response()->json(["error"=> "Ocurrió un error al enviar el mensaje"], 500);
-        }*/
+        }
     }
 }

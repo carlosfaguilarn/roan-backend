@@ -13,10 +13,12 @@ class Budget extends Model{
       $budgets['con_proyecto'] = DB::table('budgets')
         ->join('projects', 'projects.id', '=', 'budgets.proyecto_id')
         ->join('clients', 'clients.id', '=', 'projects.cliente')
+        ->where('budgets.status', '<>', 'ARCHIVADO')
         ->select('budgets.*', 'projects.titulo as proyecto', 'clients.name as cliente')->get();
 
       $budgets['sin_proyecto'] = DB::table('budgets')
         ->whereNull('budgets.proyecto_id')
+        ->where('budgets.status', '<>', 'ARCHIVADO')
         ->select('budgets.*')->get();
 
       return $budgets;
